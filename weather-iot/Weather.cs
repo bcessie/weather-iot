@@ -2,13 +2,14 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NLog;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using weather_iot.Models;
+using weather_domain.Models;
 using TransportType = Microsoft.Azure.Devices.Client.TransportType;
 
 namespace weather_iot
@@ -90,6 +91,12 @@ namespace weather_iot
             WeatherModel weatherModel = GetWeather();
 
             SendWeatherTelementry(weatherModel);
+
+            RestClient restClient = new RestClient(ConfigurationManager.AppSettings["weather-ClientApiUrl"]);
+            var request = new RestRequest("Weather", Method.POST);
+            request.AddJsonBody(weatherModel);
+
+            IRestResponse response = restClient.Execute(request);
         }
     }
 }

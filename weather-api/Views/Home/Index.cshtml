@@ -1,0 +1,46 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div data-bind="foreach: data">
+    <div class="city col-md-6 col-sm-12 row" data-bind="css: { 'clear-sky' : weather[0].main == 'Clear', 'cloudy-sky' : weather[0].main == 'Clouds' }">
+        <div class="city-row row col-md-12 col-sm-12"><div class="col-md-4 col-sm-4">City:</div> <div class="col-md-6 col-md-6" data-bind="text: name"></div></div>
+        <div class="city-row row col-md-12 col-sm-12"><div class="col-md-4 col-sm-4" data-bind="text: main.temp"></div><div class="col-md-6 col-md-6">&#176;C</div></div>
+        <div class="city-row row col-md-12 col-sm-12"><div class="col-md-4 col-sm-4" data-bind="text: main.humidity"></div><div class="col-md-6 col-md-6">%</div></div>
+        <div class="city-row row col-md-12 col-sm-12"><div class="col-md-4 col-sm-4">Sky:</div><div class="col-md-6 col-md-6" data-bind="text: weather[0].main"></div></div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        // the binding method
+        function GetData(items) {
+            var self = this;
+
+            self.data = ko.observableArray();
+
+            items.list.forEach(function (item) {
+                self.data.push(item);
+            });
+        }
+
+        (function () {
+            "use strict";
+
+            var protocol = location.protocol === "https:" ? "wss:" : "ws:";
+            // Try an open the connection to the socket on the /ws endpoint (set in Startup)
+            var wsUri = protocol + "//" + window.location.host + "/ws";
+            var socket = new WebSocket(wsUri);
+
+            socket.onmessage = function (e) {
+                var items = JSON.parse(e.data);
+
+                // providing data to the binding method
+                ko.applyBindings(GetData(items));
+            };
+        }());
+    </script>
+}
